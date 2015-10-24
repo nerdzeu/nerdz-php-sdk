@@ -1,0 +1,22 @@
+{
+    "name": "nerdzeu/nerdz-php-sdk",
+    "description": "NERDZ SDK for PHP",
+    "type": "library",
+    "keywords": ["nerdz",  "sdk" ],
+    "homepage": "https://github.com/nerdzeu/nerdz-php-sdk",
+    "license": "AGPL-3.0",
+    "require": {
+        "php": ">=5.4.0",
+        "ext-mbstring": "*",
+        "guzzlehttp/guzzle": ">=6"
+    },
+    "authors": [
+        {
+            "name": "Paolo Galeone",
+            "email": "nessuno@nerdz.eu",
+            "homepage": "http://www.nerdz.eu/nessuno.",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "dev"
+}
