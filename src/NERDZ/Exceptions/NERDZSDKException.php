@@ -5,7 +5,7 @@ namespace NERDZ\Exceptions;
 /*
  * Class NERDZSDKException
  * 
- * @package NERDZ
+ * @package NERDZ\Exceptions
  */
 
 class NERDZSDKException extends \Exception {

@@ -8,7 +8,7 @@
     "require": {
         "php": ">=5.4.0",
         "ext-mbstring": "*",
-        "league/oauth2-client": "^1.0@dev"
+        "league/oauth2-client": "^1.1"
     },
     "authors": [
         {
