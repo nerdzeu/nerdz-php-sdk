@@ -1,5 +1,8 @@
 Scrivo in italiano perchè di si:
 
+
+-Modificare e addattare NERDZclient. Che ora come ora lascio bella che copiata dal sdk di facebook
+
 -Addattare la parte relativa all'upload dei file per filezilla:
 	-http
 	-fileupload
@@ -12,3 +15,6 @@ Scrivo in italiano perchè di si:
 -creare Documentazione
 
 -creare autoload
+
+
+++++e più importante di tutti: Far funzionare tutta sta roba++++
