@@ -1,0 +1,6 @@
+Scrivo in italiano perchè di si:
+
+-Addattare la parte relativa all'upload dei file per filezilla:
+	-http
+	-fileupload
+	-NERDZRequest
