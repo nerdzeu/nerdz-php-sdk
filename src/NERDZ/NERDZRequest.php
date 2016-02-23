@@ -296,15 +296,6 @@ class NERDZRequest
         $this->headers = array_merge($this->headers, $headers);
     }
 
-    /**
-     * Sets the eTag value.
-     *
-     * @param string $eTag
-     */
-    public function setETag($eTag)
-    {
-        $this->eTag = $eTag;
-    }
 
     /**
      * Set the params for this request.

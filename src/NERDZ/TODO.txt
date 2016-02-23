@@ -4,3 +4,11 @@ Scrivo in italiano perchè di si:
 	-http
 	-fileupload
 	-NERDZRequest
+
+-fare la parte relativa a ssl(Se non sbaglio la cartella PseudoRandomString in facebookSDK)
+
+-creare TEST
+
+-creare Documentazione
+
+-creare autoload
