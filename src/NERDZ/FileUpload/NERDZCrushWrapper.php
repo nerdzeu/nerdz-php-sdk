@@ -1,11 +1,11 @@
 <?php
 
-	namespace NERDZ\FileUpload
+	namespace NERDZ\FileUpload;
 
-	public class NERDZCrushWrapper{
+	class NERDZCrushWrapper{
 
-		private static $NERDZAPIUrl='';
-		private static $userAgent='NERDZCrushWrapper'
+		private static $NERDZAPIUrl='https://media.nerdz.eu/api/';
+		private static $userAgent='NERDZCrushWrapper';
 
 
 
@@ -36,11 +36,11 @@
 		 */
 		public static function getFileInfo($hash){
 
-			$url= $NERDZAPIUrl . $hash;
+			$url= self::$NERDZAPIUrl . $hash;
 			$context= array('http' => array(
 				'method' => 'GET',
 				'user-agent' => self::$userAgent)
-			)
+			);
 
 			$infos=self::request($url, $context);
 
@@ -60,7 +60,7 @@
 		 */
 		public static function getFileInfos($hashes){
 
-			$url= $NERDZAPIUrl . 'info?list=';
+			$url= self::$NERDZAPIUrl . 'info?list=';
 			$i=0;
 			//quick and dirty way to not have a comma in the end of the url
 			foreach ($hashes as $hash) {
@@ -74,7 +74,7 @@
 			$context= array('http' => array(
 				'method' => 'GET',
 				'user-agent' => self::$userAgent)
-			)
+			);
 
 			
 
@@ -92,11 +92,11 @@
 		 */
 		public static function doesExist($hash){
 
-			$url= $NERDZAPIUrl . $hash . '/exists';
+			$url= self::$NERDZAPIUrl . $hash . '/exists';
 			$context= array('http' => array(
 				'method' => 'GET',
 				'user-agent' => self::$userAgent)
-			)
+			);
 
 			$info=self::request($url, $context);
 
@@ -133,11 +133,11 @@
 		 *
 		 */
 		public static function delete($hash){
-			$url= $NERDZAPIUrl . $hash ;
+			$url= self::$NERDZAPIUrl . $hash ;
 			$context= array('http' => array(
 				'method' => 'DELETE',
 				'user-agent' => self::$userAgent)
-			)
+			);
 
 			$info=self::request($url, $context);
 

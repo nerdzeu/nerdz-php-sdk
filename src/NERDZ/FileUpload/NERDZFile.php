@@ -54,7 +54,7 @@
 
         }
 
-        public function __construct($info){
+        public function __construct($info=null){
 
         }
     }
