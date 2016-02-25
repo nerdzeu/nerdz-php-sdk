@@ -184,9 +184,13 @@
 		private static function request($url, $context){
 
 			$scontext= stream_context_create($context);	//need to add error checking
-			$fd = fopen($url, 'rb' , false, $scontext);
-			$response = json_decode( stream_get_contents($fd) );
-
+			try{
+				$fd = @fopen($url, 'rb' , false, $scontext);
+				$response = @stream_get_contents($fd);
+			}
+			catch(Exception $e){
+				echo $e->message;
+			}
 			return json_decode($response);
 		}
 	}
