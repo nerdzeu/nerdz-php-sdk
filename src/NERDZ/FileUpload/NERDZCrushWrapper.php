@@ -5,9 +5,29 @@
 	public class NERDZCrushWrapper{
 
 		private static $NERDZAPIUrl='';
-		private static $UserAgent='NERDZCrushWrapper'
+		private static $userAgent='NERDZCrushWrapper'
 
 
+
+		/**
+     	* Change the server URL where the API resides.
+     	* 
+     	* @param serverApiUrl The URL where the API waits for connections.
+     	*/
+    	public static function changeApiURL($serverApiUrl) {
+    		self::$NERDZAPIUrl = $serverApiUrl;
+    	}
+
+    	/**
+     	* Get the server URL where the API resides.
+     	* @return
+     	*        The URL where the API waits for connections.
+     	*/
+    	public static function getApiURL() {
+        	return self::$NERDZAPIUrl;
+    	}
+
+    	
 		/**
 		 *	@param string hash
 		 *
@@ -17,16 +37,12 @@
 		public static function getFileInfo($hash){
 
 			$url= $NERDZAPIUrl . $hash;
-			$request= array('http' => array(
+			$context= array('http' => array(
 				'method' => 'GET',
-				'user-agent' => self::$UserAgent)
+				'user-agent' => self::$userAgent)
 			)
 
-			$context= stream_context_create($request);	//need to add error checking
-			$fd = fopen($url, 'rb' , false, $context);
-			$response = stream_get_contents($fd);
-
-			$infos=json_decode($response);
+			$infos=self::request($url, $context);
 
 			if(isset($infos['error'])){
 				//error! (TODO)
@@ -44,7 +60,27 @@
 		 */
 		public static function getFileInfos($hashes){
 
+			$url= $NERDZAPIUrl . 'info?list=';
+			$i=0;
+			//quick and dirty way to not have a comma in the end of the url
+			foreach ($hashes as $hash) {
+				if($i!=0){
+					$url .= ',';
+				}
+				$i++;
+				$url .= $hash;
+			}
 			
+			$context= array('http' => array(
+				'method' => 'GET',
+				'user-agent' => self::$userAgent)
+			)
+
+			
+
+			$infos=self::request($url, $context);
+
+			//da finire. Basta iterare e creare i vari oggetti
 
 		}
 
@@ -55,6 +91,16 @@
 		 *
 		 */
 		public static function doesExist($hash){
+
+			$url= $NERDZAPIUrl . $hash . '/exists';
+			$context= array('http' => array(
+				'method' => 'GET',
+				'user-agent' => self::$userAgent)
+			)
+
+			$info=self::request($url, $context);
+
+			return $info->exists;
 
 		}
 		/**
@@ -75,15 +121,27 @@
 		 */
 		public static function uploadFileViaURL($url){
 
+			$file=file_get_contents($url);		//need error checking
+			self::uploadFile($file);
+
 		}
 
-		/**
+		/** Need to create another method to deliting NERDZCrushFile instead.
 		 *	@param string hash
 		 *
 		 *	
 		 *
 		 */
 		public static function delete($hash){
+			$url= $NERDZAPIUrl . $hash ;
+			$context= array('http' => array(
+				'method' => 'DELETE',
+				'user-agent' => self::$userAgent)
+			)
+
+			$info=self::request($url, $context);
+
+			//check for errors...to-do (:
 
 		}
 
@@ -94,6 +152,14 @@
 		 *
 		 */
 		public static function getFile($hash){
+			if(!self::doesExist($hash))
+				return null;
+
+			$file=self::getFileInfo($hash);
+
+			/*..*/
+
+			return $file;
 
 		}
 		/**
@@ -113,5 +179,14 @@
 
 			return returnFiles;
 
+		}
+
+		private static function request($url, $context){
+
+			$scontext= stream_context_create($context);	//need to add error checking
+			$fd = fopen($url, 'rb' , false, $scontext);
+			$response = json_decode( stream_get_contents($fd) );
+
+			return json_decode($response);
 		}
 	}

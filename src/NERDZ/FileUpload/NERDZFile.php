@@ -1,11 +1,21 @@
 <?php
+
+    /**
+    * 
+    *
+    */
     namespace NERDZ\FileUpload
-    
+
     class NERDZFile{
 
-        private $hash;
-
-        private $infos;
+        /**
+        *   string hash
+        *   double compression
+        *   string original
+        *   string type
+        *   string filetype
+        */
+        private $infos=array();
 
         /**
         * @return boolean
@@ -44,7 +54,7 @@
 
         }
 
-        public function __construct(){
+        public function __construct($info){
 
         }
     }
