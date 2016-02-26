@@ -123,8 +123,6 @@
 				CURLOPT_POSTFIELDS => http_build_query($post)
 			);
 
-
-
 			$response=self::request($url, $context);
 			$response=json_decode($response);
 			var_dump($response);
