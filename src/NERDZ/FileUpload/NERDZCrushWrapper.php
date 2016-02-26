@@ -38,14 +38,17 @@
 		public static function getFileInfo($hash){
 
 			$url= self::$NERDZAPIUrl . $hash;
-			
 			$infos=self::request($url);
 
-			if(isset($infos['error'])){
+			$infos=json_decode($infos);
+
+			if(isset($infos->error)){
 				//error! (TODO)
 			}
 
 			$file=new NERDZFile($infos);
+
+			return $file;
 									
 		}
 

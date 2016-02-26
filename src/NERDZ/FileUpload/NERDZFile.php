@@ -4,16 +4,12 @@
     * 
     *
     */
-    namespace NERDZ\FileUpload
+    namespace NERDZ\FileUpload;
 
     class NERDZFile{
 
         /**
-        *   string hash
-        *   double compression
-        *   string original
-        *   string type
-        *   string filetype
+        *   Here we have all the infos.
         */
         private $infos=array();
 
@@ -55,6 +51,9 @@
         }
 
         public function __construct($info=null){
+
+            //dirty and shitty. MUST redo.
+            $this->infos=$info;
 
         }
     }
