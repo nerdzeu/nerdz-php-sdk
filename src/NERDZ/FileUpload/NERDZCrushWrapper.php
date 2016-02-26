@@ -1,6 +1,7 @@
 <?php
 
 	namespace NERDZ\FileUpload;
+	use NERDZ\Exceptions\NERDZHttpException;
 
 	class NERDZCrushWrapper{
 
@@ -39,11 +40,11 @@
 
 			$url= self::$NERDZAPIUrl . $hash;
 			$infos=self::request($url);
-
+			
 			$infos=json_decode($infos);
 
 			if(isset($infos->error)){
-				//error! (TODO)
+				self::triggerError($infos->error);
 			}
 
 			$file=new NERDZFile($infos);
@@ -72,6 +73,11 @@
 			}
 
 			$infos=self::request($url);
+			$infos=json_decode($infos);
+
+			if(isset($infos->error)){
+				self::triggerError($infos->error);
+			}
 
 			//da finire. Basta iterare e creare i vari oggetti
 
@@ -84,7 +90,6 @@
 		 *
 		 */
 		public static function doesExist($hash){
-
 			$url= self::$NERDZAPIUrl . $hash . '/exists';
 			$info=self::request($url);
 
@@ -127,9 +132,12 @@
 				CURLOPT_CUSTOMREQUEST => 'DELETE',
 			);
 
-			$info=self::request($url, $context);
-
-			$info=json_decode($info);
+			$infos=self::request($url, $context);
+			$infos=json_decode($infos);
+			
+			if(isset($infos->error)){
+				self::triggerError($infos->error);
+			}
 
 
 			//error checking
@@ -149,8 +157,6 @@
 				return null;
 
 			$file=self::getFileInfo($hash);
-
-			/* TODO: json_decode*/
 
 			return $file;
 
@@ -193,11 +199,46 @@
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     		if(!$result=curl_exec($ch)){
-    			curl_error($ch);
+    			throw new NERDZSDKException(curl_error($ch));
     		}
 
 			curl_close($ch);
-
 			return $result;
+		}
+
+		private static function triggerError($error){
+			switch ($error) {
+					case '404':
+						throw new NERDZHttpException("The requested file does not exist.", 404);
+						break;
+					case '400':
+						throw new NERDZHttpException("The URL is invalid.", 400);
+						break;
+					case '401':
+						throw new NERDZHttpException("The IP does not match the stored hash.", 401);
+						break;
+					case '408':
+						throw new NERDZHttpException("You are no longer allowed to edit the title or description. (timeout)", 408);
+						break;
+					case '409':
+						//this is success
+						break;
+					case '413':
+						throw new NERDZHttpException("The file is larger than maximum allowed size.", 413);
+						break;
+					case '414':
+						throw new NERDZHttpException("Either of the fields was over 2048 characters.", 414);
+						break;
+					case '415':
+						throw new NERDZHttpException("The file extension is not acceptable.", 415);
+						break;
+					case '420':
+						throw new NERDZHttpException("The rate limit was exceeded. Enhance your calm.", 420);
+						break;
+					default:
+						throw new NERDZHttpException("Unrecognized error", $error);
+						break;
+				}
+
 		}
 	}
