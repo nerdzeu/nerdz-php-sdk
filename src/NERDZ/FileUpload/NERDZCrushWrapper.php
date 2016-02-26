@@ -7,7 +7,7 @@
 
 
 		//some config vars
-		private static $NERDZAPIUrl='https://media.nerdz.eu/api/';
+		private static $NERDZAPIUrl='http://media.nerdz.eu/api/';
 		private static $userAgent='NERDZCrushWrapper';
 
 
@@ -102,7 +102,7 @@
 		 *	@return string
 		 *
 		 */
-		public static function uploadFile($file){
+		public static function uploadFile(NERDZFile $file){
 
 		}
 
@@ -112,11 +112,26 @@
 		 *	@return string
 		 *
 		 */
-		public static function uploadFileViaURL($url){
+		public static function uploadFileViaURL($uploadUrl){
+			$url= self::$NERDZAPIUrl . 'upload/url';
+			$post=array(
+				'url' => $uploadUrl
+			);
 
-			$file=self::request($url, array());		//need error checking
-			self::uploadFile($file);
+			$context = array(
+				CURLOPT_POST => 1,
+				CURLOPT_POSTFIELDS => http_build_query($post)
+			);
 
+
+
+			$response=self::request($url, $context);
+			$response=json_decode($response);
+			var_dump($response);
+			if(isset($response->error))
+				self::triggerError($response->error);
+
+			return $response->hash;
 		}
 
 		/** Need to create another method to deliting NERDZCrushFile instead.
@@ -138,7 +153,7 @@
 				self::triggerError($infos->error);
 			}
 
-			return $info;
+			return $infos;
 
 		}
 
@@ -181,19 +196,18 @@
 
 			$ch=curl_init($url);
 
-			foreach ($context as $key => $value) {
-				curl_setopt($ch, $key, $value);
-			}
-
-			//set the user-agent
+			curl_setopt_array($ch, $context);
 			curl_setopt($ch, CURLOPT_USERAGENT, self::$userAgent);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     		if(!$result=curl_exec($ch)){
     			throw new NERDZSDKException(curl_error($ch));
     		}
+			if($result == null)
+				triggerError(curl_getinfo($ch, CURLINFO_HTTP_CODE));
 
 			curl_close($ch);
+			
 			return $result;
 		}
 
