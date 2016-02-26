@@ -39,7 +39,7 @@ class NERDZFile
     private $type;
     private $fileType;
     private $files;
-    //private $orginalFile;
+   
     private $file;
 
     public function getCompression(){
@@ -71,9 +71,11 @@ class NERDZFile
      */
     public function __construct($info, $maxLength = -1, $offset = -1)
     {
+        //polimorfismo a modo mio
         if($info instanceof string){
             $this->path = $info;
-        }else{
+        }
+        else{
             $this->hash=$info->hash;
             $this->compression=$info->compression;
             $this->files=$info->files;
@@ -81,6 +83,8 @@ class NERDZFile
             $this->path=$info->files[0]->url;
             $this->fileType=$info->type;
             $this->file=$info->files[0]->file;
+
+            $this->status=(isset($info->status))?$info->status:null;
         }
 
         $this->maxLength = $maxLength;

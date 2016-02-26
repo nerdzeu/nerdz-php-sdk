@@ -60,7 +60,6 @@
 		 *
 		 */
 		public static function getFileInfos($hashes){
-
 			$url= self::$NERDZAPIUrl . 'info?list=';
 			$i=0;
 			//quick and dirty way to not have a comma in the end of the url
@@ -139,9 +138,6 @@
 				self::triggerError($infos->error);
 			}
 
-
-			//error checking
-
 			return $info;
 
 		}
@@ -153,13 +149,8 @@
 		 *
 		 */
 		public static function getFile($hash){
-			if(!self::doesExist($hash))
-				return null;
-
 			$file=self::getFileInfo($hash);
-
 			return $file;
-
 		}
 		/**
 		 *	@param string[] hashes
