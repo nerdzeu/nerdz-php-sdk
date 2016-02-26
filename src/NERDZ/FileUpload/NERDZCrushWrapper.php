@@ -4,9 +4,10 @@
 
 	class NERDZCrushWrapper{
 
+
+		//some config vars
 		private static $NERDZAPIUrl='https://media.nerdz.eu/api/';
 		private static $userAgent='NERDZCrushWrapper';
-
 
 
 		/**
@@ -37,12 +38,8 @@
 		public static function getFileInfo($hash){
 
 			$url= self::$NERDZAPIUrl . $hash;
-			$context= array('http' => array(
-				'method' => 'GET',
-				'user-agent' => self::$userAgent)
-			);
-
-			$infos=self::request($url, $context);
+			
+			$infos=self::request($url);
 
 			if(isset($infos['error'])){
 				//error! (TODO)
@@ -70,15 +67,8 @@
 				$i++;
 				$url .= $hash;
 			}
-			
-			$context= array('http' => array(
-				'method' => 'GET',
-				'user-agent' => self::$userAgent)
-			);
 
-			
-
-			$infos=self::request($url, $context);
+			$infos=self::request($url);
 
 			//da finire. Basta iterare e creare i vari oggetti
 
@@ -93,16 +83,12 @@
 		public static function doesExist($hash){
 
 			$url= self::$NERDZAPIUrl . $hash . '/exists';
-			$context= array('http' => array(
-				'method' => 'GET',
-				'user-agent' => self::$userAgent)
-			);
+			$info=self::request($url);
 
-			$info=self::request($url, $context);
-
+			$info=json_decode($info);
 			return $info->exists;
-
 		}
+
 		/**
 		 *	@param file file
 		 *
@@ -121,7 +107,7 @@
 		 */
 		public static function uploadFileViaURL($url){
 
-			$file=file_get_contents($url);		//need error checking
+			$file=self::request($url, array());		//need error checking
 			self::uploadFile($file);
 
 		}
@@ -134,14 +120,18 @@
 		 */
 		public static function delete($hash){
 			$url= self::$NERDZAPIUrl . $hash ;
-			$context= array('http' => array(
-				'method' => 'DELETE',
-				'user-agent' => self::$userAgent)
+			$context= array( 
+				CURLOPT_CUSTOMREQUEST => 'DELETE',
 			);
 
 			$info=self::request($url, $context);
 
-			//check for errors...to-do (:
+			$info=json_decode($info);
+
+
+			//error checking
+
+			return $info;
 
 		}
 
@@ -157,7 +147,7 @@
 
 			$file=self::getFileInfo($hash);
 
-			/*..*/
+			/* TODO: json_decode*/
 
 			return $file;
 
@@ -177,20 +167,34 @@
 				$returnFiles[$i++]=self::getFile($hash);
 			}
 
-			return returnFiles;
+			return $returnFiles;
 
 		}
 
-		private static function request($url, $context){
+		/**
+		*	return contents and status code
+		*
+		*	@return array[]
+		*/
 
-			$scontext= stream_context_create($context);	//need to add error checking
-			try{
-				$fd = @fopen($url, 'rb' , false, $scontext);
-				$response = @stream_get_contents($fd);
+		private static function request($url, $context = array()){
+
+			$ch=curl_init($url);
+
+			foreach ($context as $key => $value) {
+				curl_setopt($ch, $key, $value);
 			}
-			catch(Exception $e){
-				echo $e->message;
-			}
-			return json_decode($response);
+
+			//set the user-agent
+			curl_setopt($ch, CURLOPT_USERAGENT, self::$userAgent);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    		if(!$result=curl_exec($ch)){
+    			curl_error($ch);
+    		}
+
+			curl_close($ch);
+
+			return $result;
 		}
 	}
