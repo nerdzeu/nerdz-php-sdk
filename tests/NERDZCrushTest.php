@@ -2,14 +2,23 @@
 
 require '../autoload.php';
 
-//used files: https://media.nerdz.eu/C4PFHof8-Bnh.jpg
 
-class NERDZCrushTest extends PHPUnit_Framework_TestCase{
+class NERDZCrushTest extends PHPUnit_Framework_TestCase
+{
 
-	public function testApiUrl()
+    private $existing_hash1        = "Fsh6zkt6Znew";
+    private $existing_hash2        = "C4PFHof8-Bnh";
+    private $local_file            = array("files/paolo.jpeg", "iwvA-OjFOssN"); //name of file and its hash
+    private $inexistent_local_file = "i_do_not_exist";
+    private $existing_url          = "https://www.google.it/images/nav_logo242.png";
+    private $non_existing_hash     = "aaaaaaaaaaaa";
+    private $default_API_url       = "https://media.nerdz.eu/api/";
+    private $default_UserAgent     = "NERDZCrushWrapper";
+
+    public function testApiUrl()
     {
 
-    	$old_api='https://media.nerdz.eu/api/';
+        $old_api = $this->default_API_url;
         $this->assertEquals($old_api, NERDZ\FileUpload\NERDZCrushWrapper::getAPIUrl());
 
         NERDZ\FileUpload\NERDZCrushWrapper::changeAPIUrl('foo');
@@ -22,7 +31,7 @@ class NERDZCrushTest extends PHPUnit_Framework_TestCase{
     public function testUserAgent()
     {
 
-    	$old_user_agent='NERDZCrushWrapper';
+        $old_user_agent = $this->default_UserAgent;
         $this->assertEquals($old_user_agent, NERDZ\FileUpload\NERDZCrushWrapper::getUserAgent());
 
         NERDZ\FileUpload\NERDZCrushWrapper::changeUserAgent('foo');
@@ -32,138 +41,173 @@ class NERDZCrushTest extends PHPUnit_Framework_TestCase{
         $this->assertEquals($old_user_agent, NERDZ\FileUpload\NERDZCrushWrapper::getUserAgent());
     }
 
-    public function testDoesExist(){
-    	$hash="Fsh6zkt6Znew"; //this MUST be an existing file
-    	$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
+    public function testDoesExist()
+    {
+        $hash   = $this->existing_hash1;
+        $return = NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
 
-    	$this->assertTrue($return);
+        $this->assertTrue($return);
     }
 
-    /**
-     * @expectedException     NERDZ\Exceptions\NERDZHttpException
-     *
-     * @expectedExceptionCode 404
-     */
-     public function testFailDoesExist(){
-     	$hash="Fsh6zkt6ZneW"; //this MUST be an non-existing file
-    	$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
+    public function testDelete()
+    {
+        $file   = $this->local_file[0];
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
 
-    	$this->assertFalse($return);
-     }
-
-    public function TestUploadFile(){
-    	$file='files/paolo.jpeg';
-    	$hash="iwvA-OjFOssN"; //hash of the file
-        $Uphash=NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
-
-        $this->assertEquals($hash, $Uphash);
-
-       	$file= new NERDZ\FileUpload\NERDZFile($file);
-        $Uphash=NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
-
-        $this->assertEquals($hash, $Uphash);
-
-    }
-
-    public function testUploadFileViaURL(){
-    	$url="http://www.starcoppe.it/images/grafica-immagine-b.jpg"; // MUST be a valid url
-
-    	$Uphash=NERDZ\FileUpload\NERDZCrushWrapper::uploadFileViaURL($url);
-
-    	$this->assertTrue($Uphash!=null);
-    }
-
-    public function testDelete(){
-    	$file='files/paolo.jpeg';
-        $Uphash=NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
-
-        $result=NERDZ\FileUpload\NERDZCrushWrapper::delete($Uphash);
+        $result = NERDZ\FileUpload\NERDZCrushWrapper::delete($Uphash);
         $this->assertEquals("success", $result);
 
     }
 
-    public function testGetFileInfo(){
-    	$hash="Fsh6zkt6Znew"; //this MUST be an existing file
-    	//$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
+    public function testFailDoesExist()
+    {
+        $this->expectException(NERDZ\Exceptions\NERDZHttpException::class);
+        $this->expectExceptionCode(404);
+        $hash   = $this->non_existing_hash; //this MUST be an non-existing file
+        $return = NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
 
-    	$file=NERDZ\FileUpload\NERDZCrushWrapper::getFileInfo($hash);
-    	$this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $file);
-    	$this->assertEquals("Fsh6zkt6Znew", $file->getHash());
-    	$this->assertEquals("https://media.nerdz.eu/Fsh6zkt6Znew.jpg", $file->getFilePath());
-    	$this->assertEquals("/Fsh6zkt6Znew.jpg", $file->getFile());
-    	$this->assertEquals("Fsh6zkt6Znew.jpg", $file->getFileName());
+        $this->assertFalse($return);
     }
 
-    public function testGetFile(){
-    	$hash="Fsh6zkt6Znew"; //this MUST be an existing file
-    	//$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
+    public function TestUploadFile()
+    {
+        $file   = $this->local_file[0];
+        $hash   = $this->local_file[1];
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
+        $this->assertEquals($hash, $Uphash);
 
-    	$file=NERDZ\FileUpload\NERDZCrushWrapper::getFile($hash);
-    	$this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $file);
-    	$this->assertEquals("Fsh6zkt6Znew", $file->getHash());
-    	$this->assertEquals("https://media.nerdz.eu/Fsh6zkt6Znew.jpg", $file->getFilePath());
-    	$this->assertEquals("/Fsh6zkt6Znew.jpg", $file->getFile());
-    	$this->assertEquals("Fsh6zkt6Znew.jpg", $file->getFileName());
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::delete($Uphash); //clean
+
+        $file   = new NERDZ\FileUpload\NERDZFile($file);
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
+        $this->assertEquals($hash, $Uphash);
+
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::delete($Uphash); // clean image
     }
 
-      public function testGetFiles(){
-    	$hashes=array("Fsh6zkt6Znew", "C4PFHof8-Bnh"); //this MUST be an existing file
-    	//$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
-    	$results_first=array(
-    		'getHash' => 'Fsh6zkt6Znew',
-    		'getFilePath' => 'https://media.nerdz.eu/Fsh6zkt6Znew.jpg',
-    		'getFile' => '/Fsh6zkt6Znew.jpg',
-    		'getFileName' => 'Fsh6zkt6Znew.jpg'
-    		);
-    	$results_second=array(
-    		'getHash' => 'C4PFHof8-Bnh',
-    		'getFilePath' => 'https://media.nerdz.eu/C4PFHof8-Bnh.jpg',
-    		'getFile' => '/C4PFHof8-Bnh.jpg',
-    		'getFileName' => 'C4PFHof8-Bnh.jpg'
-    		);
+    public function TestUploadInexistentFile()
+    {
+        $this->expectException(NERDZ\Exceptions\NERDZSDKException::class);
 
-    	$files=NERDZ\FileUpload\NERDZCrushWrapper::getFiles($hashes);
+        $file   = $this->inexistent_local_file;
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
 
-    	$this->assertCount(2, $files);
-    	$this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files[0]);
-    	$this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files[1]);
-
-    	foreach ($results_first as $key => $value) {
-    		$this->assertEquals($value, $files[0]->$key());
-    	}
-    	foreach ($results_second as $key => $value) {
-    		$this->assertEquals($value, $files[1]->$key());
-    	}
-    }
-    public function testGetFileInfos(){
-    	$hashes=array("Fsh6zkt6Znew", "C4PFHof8-Bnh"); //this MUST be an existing file
-    	//$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
-    	$results_first=array(
-    		'getHash' => 'Fsh6zkt6Znew',
-    		'getFilePath' => 'https://media.nerdz.eu/Fsh6zkt6Znew.jpg',
-    		'getFile' => '/Fsh6zkt6Znew.jpg',
-    		'getFileName' => 'Fsh6zkt6Znew.jpg'
-    		);
-    	$results_second=array(
-    		'getHash' => 'C4PFHof8-Bnh',
-    		'getFilePath' => 'https://media.nerdz.eu/C4PFHof8-Bnh.jpg',
-    		'getFile' => '/C4PFHof8-Bnh.jpg',
-    		'getFileName' => 'C4PFHof8-Bnh.jpg'
-    		);
-
-    	$files=NERDZ\FileUpload\NERDZCrushWrapper::getFileInfos($hashes);
-
-    	$this->assertCount(2, $files);
-    	$this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files['Fsh6zkt6Znew']);
-    	$this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files['C4PFHof8-Bnh']);
-
-    	foreach ($results_first as $key => $value) {
-    		$this->assertEquals($value, $files['Fsh6zkt6Znew']->$key());
-    	}
-    	foreach ($results_second as $key => $value) {
-    		$this->assertEquals($value, $files['C4PFHof8-Bnh']->$key());
-    	}
     }
 
+    public function testUploadFileViaURL()
+    {
+        $url = $this->existing_url; // MUST be a valid url
+
+        $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::uploadFileViaURL($url);
+
+        $this->assertTrue($Uphash != null);
+    }
+
+    public function testGetFileInfo()
+    {
+        $hash = $this->existing_hash1; //this MUST be an existing file
+
+        $aspected_results = array(
+            'getHash'     => $this->existing_hash1,
+            'getFilePath' => 'https://media.nerdz.eu/' . $this->existing_hash1 . '.jpg',
+            'getFile'     => '/' . $this->existing_hash1 . '.jpg',
+            'getFileName' => $this->existing_hash1 . '.jpg',
+        );
+
+        $file = NERDZ\FileUpload\NERDZCrushWrapper::getFileInfo($hash);
+        $this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $file);
+        foreach ($aspected_results as $key => $value) {
+            $this->assertEquals($value, $file->$key());
+        }
+    }
+
+    public function testGetFile()
+    {
+        $hash = $this->existing_hash1; //this MUST be an existing file
+
+        $aspected_results = array(
+            'getHash'     => $this->existing_hash1,
+            'getFilePath' => 'https://media.nerdz.eu/' . $this->existing_hash1 . '.jpg',
+            'getFile'     => '/' . $this->existing_hash1 . '.jpg',
+            'getFileName' => $this->existing_hash1 . '.jpg',
+        );
+
+        $file = NERDZ\FileUpload\NERDZCrushWrapper::getFile($hash);
+        $this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $file);
+        foreach ($aspected_results as $key => $value) {
+            $this->assertEquals($value, $file->$key());
+        }
+    }
+
+    public function testGetInexistentFile()
+    {
+        $this->expectException(NERDZ\Exceptions\NERDZHttpException::class);
+        $this->expectExceptionCode(404);
+
+        $hash = $this->non_existing_hash;
+
+        $file = NERDZ\FileUpload\NERDZCrushWrapper::getFile($hash);
+
+    }
+
+    public function testGetFiles()
+    {
+        $hashes = array($this->existing_hash1, $this->existing_hash2); //this MUST be an existing file
+        //$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
+        $aspected_results1 = array(
+            'getHash'     => $this->existing_hash1,
+            'getFilePath' => 'https://media.nerdz.eu/' . $this->existing_hash1 . '.jpg',
+            'getFile'     => '/' . $this->existing_hash1 . '.jpg',
+            'getFileName' => $this->existing_hash1 . '.jpg',
+        );
+        $aspected_results2 = array(
+            'getHash'     => $this->existing_hash2,
+            'getFilePath' => 'https://media.nerdz.eu/' . $this->existing_hash2 . '.jpg',
+            'getFile'     => '/' . $this->existing_hash2 . '.jpg',
+            'getFileName' => $this->existing_hash2 . '.jpg',
+        );
+
+        $files = NERDZ\FileUpload\NERDZCrushWrapper::getFiles($hashes);
+
+        $this->assertCount(2, $files);
+        $this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files[0]);
+        $this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files[1]);
+
+        foreach ($aspected_results1 as $key => $value) {
+            $this->assertEquals($value, $files[0]->$key());
+        }
+        foreach ($aspected_results2 as $key => $value) {
+            $this->assertEquals($value, $files[1]->$key());
+        }
+    }
+    public function testGetFileInfos()
+    {
+        $hashes = array($this->existing_hash1, $this->existing_hash2); //this MUST be an existing file
+        //$return= NERDZ\FileUpload\NERDZCrushWrapper::doesExist($hash);
+        $aspected_results1 = array(
+            'getHash'     => $this->existing_hash1,
+            'getFilePath' => 'https://media.nerdz.eu/' . $this->existing_hash1 . '.jpg',
+            'getFile'     => '/' . $this->existing_hash1 . '.jpg',
+            'getFileName' => $this->existing_hash1 . '.jpg',
+        );
+        $aspected_results2 = array(
+            'getHash'     => $this->existing_hash2,
+            'getFilePath' => 'https://media.nerdz.eu/' . $this->existing_hash2 . '.jpg',
+            'getFile'     => '/' . $this->existing_hash2 . '.jpg',
+            'getFileName' => $this->existing_hash2 . '.jpg',
+        );
+
+        $files = NERDZ\FileUpload\NERDZCrushWrapper::getFileInfos($hashes);
+
+        $this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files[$hashes[0]]);
+        $this->assertInstanceOf('NERDZ\FileUpload\NERDZFile', $files[$hashes[1]]);
+
+        foreach ($aspected_results1 as $key => $value) {
+            $this->assertEquals($value, $files[$hashes[0]]->$key());
+        }
+        foreach ($aspected_results2 as $key => $value) {
+            $this->assertEquals($value, $files[$hashes[1]]->$key());
+        }
+    }
 
 }

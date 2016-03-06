@@ -7,7 +7,7 @@ use NERDZ\Exceptions\NERDZHttpException;
 class NERDZCrushWrapper
 {
 
-    //some config vars(http for debug. Don't ask )
+    
     private static $NERDZAPIUrl = 'https://media.nerdz.eu/api/';
     private static $userAgent   = 'NERDZCrushWrapper';
 
@@ -100,9 +100,9 @@ class NERDZCrushWrapper
             self::triggerError($response->error);
         }
 
-        $toReturn=array();
+        $toReturn = array();
         foreach ($response as $key => $value) {
-        	$toReturn[$key] = new NERDZFile($value);
+            $toReturn[$key] = new NERDZFile($value);
         }
 
         return $toReturn;
@@ -141,6 +141,10 @@ class NERDZCrushWrapper
             $filename = $file;
         }
 
+        if (!file_exists($file)) {
+            throw new NERDZSDKException("File cannot be found");
+        }
+
         $post = array(
             'file' => curl_file_create($filename), //for some reason the autoload not allow to load CURLFile class. buh
         );
@@ -149,7 +153,6 @@ class NERDZCrushWrapper
             CURLOPT_POST       => 1,
             CURLOPT_POSTFIELDS => $post,
         );
-
         $response = self::request($url, $context);
         $response = json_decode($response);
 
