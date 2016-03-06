@@ -8,7 +8,7 @@ class NERDZCrushWrapper
 {
 
     //some config vars(http for debug. Don't ask )
-    private static $NERDZAPIUrl = 'http://media.nerdz.eu/api/';
+    private static $NERDZAPIUrl = 'https://media.nerdz.eu/api/';
     private static $userAgent   = 'NERDZCrushWrapper';
 
     /**
@@ -77,7 +77,7 @@ class NERDZCrushWrapper
     /**
      *    @param  hashes An array of hashes to retrive inf about.
      *
-     *    @return NERDZFile[]
+     *    @return a dictionary with key=hash and value=NERDZFile. NOTE: this is the main difference with getFiles()
      *
      */
     public static function getFileInfos($hashes)
@@ -100,7 +100,12 @@ class NERDZCrushWrapper
             self::triggerError($response->error);
         }
 
-        var_dump($response);
+        $toReturn=array();
+        foreach ($response as $key => $value) {
+        	$toReturn[$key] = new NERDZFile($value);
+        }
+
+        return $toReturn;
 
     }
 
@@ -216,7 +221,7 @@ class NERDZCrushWrapper
             self::triggerError($infos->error);
         }
 
-        return $infos;
+        return $infos->status;
     }
 
     /**

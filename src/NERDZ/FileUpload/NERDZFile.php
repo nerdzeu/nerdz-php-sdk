@@ -31,7 +31,6 @@ class NERDZFile
      */
     protected $stream;
 
-
     private $hash;
     private $status;
     private $compression;
@@ -39,26 +38,33 @@ class NERDZFile
     private $type;
     private $fileType;
     private $files;
-   
+
     private $file;
 
-    public function getCompression(){
+    public function getCompression()
+    {
         return $this->compression;
     }
 
-    public function getFiles(){
+    public function getFiles()
+    {
         return $this->files;
     }
 
-    public function getHash(){
+    //rindondante con getFilename. Lo mantengo comunque.
+    public function getFile(){
+        return $this->file;
+    }
+
+    public function getHash()
+    {
         return $this->hash;
     }
 
-    public function getStatus(){
+    public function getStatus()
+    {
         return $this->getStatus;
     }
-
-
 
     /**
      * Creates a new NERDZFile entity.
@@ -71,24 +77,23 @@ class NERDZFile
      */
     public function __construct($info, $maxLength = -1, $offset = -1)
     {
-        
-        if(is_string($info)){
-            $this->path = realpath($info);
-        }
-        else{
-            $this->hash=$info->hash;
-            $this->compression=$info->compression;
-            $this->files=$info->files;
-            //!!!!! Must check if album or not
-            $this->path=$info->files[0]->url;
-            $this->fileType=$info->type;
-            $this->file=$info->files[0]->file;
 
-            $this->status=(isset($info->status))?$info->status:null;
+        if (is_string($info)) {
+            $this->path = realpath($info);
+        } else {
+            $this->hash        = $info->hash;
+            $this->compression = $info->compression;
+            $this->files       = $info->files;
+            //!!!!! Must check if album or not
+            $this->path     = $info->files[0]->url;
+            $this->fileType = $info->type;
+            $this->file     = $info->files[0]->file;
+
+            $this->status = (isset($info->status)) ? $info->status : null;
         }
 
         $this->maxLength = $maxLength;
-        $this->offset = $offset;
+        $this->offset    = $offset;
         $this->open();
 
     }
