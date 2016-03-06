@@ -2,7 +2,7 @@
 
 require '../autoload.php';
 
-$file= new NERDZ\FileUpload\NERDZFile('files/paolo.jpeg');
+/*$file= new NERDZ\FileUpload\NERDZFile('files/paolo.jpeg');
 
 $hash=NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
 
@@ -17,4 +17,7 @@ echo NERDZ\FileUpload\NERDZCrushWrapper::uploadFileViaURL('http://www.keenthemes
 
 var_dump(NERDZ\FileUpload\NERDZCrushWrapper::doesExist('tcRpfLPj6cZW'));
 
-var_dump(NERDZ\FileUpload\NERDZCrushWrapper::delete('tcRpfLPj6cZW'));
+var_dump(NERDZ\FileUpload\NERDZCrushWrapper::delete('tcRpfLPj6cZW'));*/
+
+$hello= NERDZ\FileUpload\NERDZCrushWrapper::getFileInfos(array('Fsh6zkt6Znew', 'iwvA-OjFOssN', 'iwvA-OjFOssn'));
+var_dump($hello);

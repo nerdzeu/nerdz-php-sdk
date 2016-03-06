@@ -1,309 +1,321 @@
 <?php
 
-	namespace NERDZ\FileUpload;
-	use NERDZ\Exceptions\NERDZHttpException;
+namespace NERDZ\FileUpload;
 
-	class NERDZCrushWrapper{
+use NERDZ\Exceptions\NERDZHttpException;
 
+class NERDZCrushWrapper
+{
 
-		//some config vars(http for debug. Don't ask )
-		private static $NERDZAPIUrl='http://media.nerdz.eu/api/';
-		private static $userAgent='NERDZCrushWrapper';
+    //some config vars(http for debug. Don't ask )
+    private static $NERDZAPIUrl = 'http://media.nerdz.eu/api/';
+    private static $userAgent   = 'NERDZCrushWrapper';
 
+    /**
+     * Change the server URL where the API resides.
+     *
+     * @param serverApiUrl The URL where the API waits for connections.
+     */
+    public static function changeApiURL($serverApiUrl)
+    {
+        self::$NERDZAPIUrl = $serverApiUrl;
+    }
 
-		/**
-     	* Change the server URL where the API resides.
-     	* 
-     	* @param serverApiUrl The URL where the API waits for connections.
-     	*/
-    	public static function changeApiURL($serverApiUrl) {
-    		self::$NERDZAPIUrl = $serverApiUrl;
-    	}
+    /**
+     * Get the server URL where the API resides.
+     * @return
+     *        The URL where the API waits for connections.
+     */
+    public static function getApiURL()
+    {
+        return self::$NERDZAPIUrl;
+    }
 
+    /**
+     * Change the user agent.
+     *
+     * @param useragent New useragent
+     */
+    public static function changeUserAgent($useragent)
+    {
+        self::$userAgent = $useragent;
+    }
 
-    	/**
-     	* Get the server URL where the API resides.
-     	* @return
-     	*        The URL where the API waits for connections.
-     	*/
-    	public static function getApiURL() {
-        	return self::$NERDZAPIUrl;
-    	}
+    /**
+     * Get the userAgent
+     * @return
+     *        Current user agent.
+     */
+    public static function getUserAgent()
+    {
+        return self::$userAgent;
+    }
 
-    	/**
-     	* Change the user agent.
-     	* 
-     	* @param useragent New useragent
-     	*/
-    	public static function changeUserAgent($useragent) {
-    		self::$userAgent = $useragent;
-    	}
+    /**
+     *    @param hash The hash of the file to retrive info about.
+     *
+     *    @return NERDZFile
+     *
+     */
+    public static function getFileInfo($hash)
+    {
 
-    	/**
-     	* Get the userAgent
-     	* @return
-     	*        Current user agent.
-     	*/
-    	public static function getUserAgent() {
-        	return self::$userAgent;
-    	}
+        $url   = self::$NERDZAPIUrl . $hash;
+        $infos = self::request($url);
 
-    	
-		/**
-		 *	@param hash The hash of the file to retrive info about.
-		 *
-		 *	@return NERDZFile
-		 *
-		 */
-		public static function getFileInfo($hash){
+        $infos = json_decode($infos);
 
-			$url= self::$NERDZAPIUrl . $hash;
-			$infos=self::request($url);
-			
-			$infos=json_decode($infos);
+        if (isset($infos->error)) {
+            self::triggerError($infos->error);
+        }
 
-			if(isset($infos->error)){
-				self::triggerError($infos->error);
-			}
+        $file = new NERDZFile($infos);
 
-			$file=new NERDZFile($infos);
+        return $file;
+    }
 
-			return $file;						
-		}
+    /**
+     *    @param  hashes An array of hashes to retrive inf about.
+     *
+     *    @return NERDZFile[]
+     *
+     */
+    public static function getFileInfos($hashes)
+    {
+        $url = self::$NERDZAPIUrl . 'info?list=';
+        $i   = 0;
+        //quick and dirty way to not have a comma in the end of the url
+        foreach ($hashes as $hash) {
+            if ($i != 0) {
+                $url .= ',';
+            }
+            $i++;
+            $url .= $hash;
+        }
 
+        $response = self::request($url);
+        $response = json_decode($response);
 
-		/**
-		 *	@param  hashes An array of hashes to retrive inf about.
-		 *
-		 *	@return NERDZFile[]
-		 *
-		 */
-		public static function getFileInfos($hashes){
-			$url= self::$NERDZAPIUrl . 'info?list=';
-			$i=0;
-			//quick and dirty way to not have a comma in the end of the url
-			foreach ($hashes as $hash) {
-				if($i!=0){
-					$url .= ',';
-				}
-				$i++;
-				$url .= $hash;
-			}
+        if (isset($response->error)) {
+            self::triggerError($response->error);
+        }
 
-			$infos=self::request($url);
-			$infos=json_decode($infos);
+        var_dump($response);
 
-			if(isset($infos->error)){
-				self::triggerError($infos->error);
-			}
+    }
 
-			//da finire. Basta iterare e creare i vari oggetti
+    /**
+     *    @param string hash
+     *
+     *    @return boolean
+     *
+     */
+    public static function doesExist($hash)
+    {
+        $url  = self::$NERDZAPIUrl . $hash . '/exists';
+        $info = self::request($url);
+        $info = json_decode($info);
 
-		}
+        return $info->exists;
+    }
 
+    /**
+     *    @param file filename or NERDZFile
+     *
+     *    @return hash
+     *
+     */
+    public static function uploadFile($file)
+    {
 
-		/**
-		 *	@param string hash
-		 *
-		 *	@return boolean
-		 *
-		 */
-		public static function doesExist($hash){
-			$url=self::$NERDZAPIUrl . $hash . '/exists';
-			$info=self::request($url);
+        $url = self::$NERDZAPIUrl . 'upload/file';
 
-			$info=json_decode($info);
-			return $info->exists;
-		}
+        if ($file instanceof NERDZFile) {
+            $filename = $file->getFilePath();
+        } else {
+            $filename = $file;
+        }
 
+        $post = array(
+            'file' => curl_file_create($filename), //for some reason the autoload not allow to load CURLFile class. buh
+        );
 
-		/**
-		 *	@param file filename or NERDZFile
-		 *
-		 *	@return hash
-		 *
-		 */
-		public static function uploadFile($file){
+        $context = array(
+            CURLOPT_POST       => 1,
+            CURLOPT_POSTFIELDS => $post,
+        );
 
-			$url=self::$NERDZAPIUrl . 'upload/file';
+        $response = self::request($url, $context);
+        $response = json_decode($response);
 
-			if($file instanceof NERDZFile)
-				$filename = $file->getFilePath();
-			else
-				$filename=$file;
+        if (isset($response->error)) {
+            self::triggerError($response->error);
+        }
 
-			$post=array(
-				'file' =>  curl_file_create($filename) //for some reason the autoload not allow to load CURLFile class. buh
-			);
+        return $response->hash;
 
-			$context = array(
-				CURLOPT_POST => 1,
-				CURLOPT_POSTFIELDS =>  $post
-			);
+    }
 
-			$response=self::request($url, $context);
-			$response=json_decode($response);
-			
-			if(isset($response->error))
-				self::triggerError($response->error);
+    /**
+     *    @param string url
+     *
+     *    @return string
+     *
+     */
+    public static function uploadFileViaURL($uploadUrl)
+    {
+        $url = self::$NERDZAPIUrl . 'upload/url';
 
-			return $response->hash;
+        $post = array(
+            'url' => $uploadUrl,
+        );
 
-		}
+        $context = array(
+            CURLOPT_POST       => 1,
+            CURLOPT_POSTFIELDS => http_build_query($post),
+        );
 
-		/**
-		 *	@param string url
-		 *
-		 *	@return string
-		 *
-		 */
-		public static function uploadFileViaURL($uploadUrl){
-			$url= self::$NERDZAPIUrl . 'upload/url';
+        $response = self::request($url, $context);
+        $response = json_decode($response);
 
-			$post=array(
-				'url' => $uploadUrl
-			);
+        if (isset($response->error)) {
+            self::triggerError($response->error);
+        }
 
-			$context = array(
-				CURLOPT_POST => 1,
-				CURLOPT_POSTFIELDS => http_build_query($post)
-			);
+        return $response->hash;
+    }
 
-			$response=self::request($url, $context);
-			$response=json_decode($response);
+    /**
+     *  Delete $file uploaded on NerdzCrush
+     *
+     *    @param file Nerdzfile or hash of a remote file that will be deleted
+     *
+     *    @return Updated infos
+     *
+     */
+    public static function delete($file)
+    {
 
-			if(isset($response->error))
-				self::triggerError($response->error);
+        if ($file instanceof NERDZFile) {
+            $hash = $file->getHash();
+        }
+        //need to check if file is on server.
+        else {
+            $hash = $file;
+        }
 
-			return $response->hash;
-		}
+        $url     = self::$NERDZAPIUrl . $hash;
+        $context = array(
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
+        );
 
-		/** 
-		 *  Delete $file uploaded on NerdzCrush
-		 *
-		 *	@param file Nerdzfile or hash of a remote file that will be deleted
-		 *
-		 *	@return Updated infos
-		 *
-		 */
-		public static function delete($file){
+        $infos = self::request($url, $context);
+        $infos = json_decode($infos);
 
-			if($file instanceof NERDZFile)
-					$hash=$file->getHash(); //need to check if file is on server.
-			else
-				$hash=$file;
+        if (isset($infos->error)) {
+            self::triggerError($infos->error);
+        }
 
-			$url= self::$NERDZAPIUrl . $hash ;
-			$context= array( 
-				CURLOPT_CUSTOMREQUEST => 'DELETE',
-			);
+        return $infos;
+    }
 
-			$infos=self::request($url, $context);
-			$infos=json_decode($infos);
-			
-			if(isset($infos->error)){
-				self::triggerError($infos->error);
-			}
+    /**
+     *    @param string hash
+     *
+     *    @return NERDZFile
+     *
+     */
+    public static function getFile($hash)
+    {
+        //yes, this is an alias for GetFileInfo.
+        $file = self::getFileInfo($hash);
+        return $file;
+    }
 
-			return $infos;
-		}
+    /**
+     *    @param string[] hashes
+     *
+     *    @return NERDZFile[]
+     *
+     */
+    public static function getFiles($hashes)
+    {
 
+        $returnFiles = array();
+        $i           = 0;
 
-		/**
-		 *	@param string hash
-		 *
-		 *	@return NERDZFile
-		 *
-		 */
-		public static function getFile($hash){
-			//yes, this is an alias for GetFileInfo.
-			$file=self::getFileInfo($hash);
-			return $file;
-		}
+        foreach ($hashes as $hash) {
+            $returnFiles[$i++] = self::getFile($hash);
+        }
 
+        return $returnFiles;
+    }
 
-		/**
-		 *	@param string[] hashes
-		 *
-		 *	@return NERDZFile[]
-		 *
-		 */
-		public static function getFiles($hashes){
+    /**
+     *    return contents
+     *
+     *    @return array[]
+     */
+    private static function request($url, $context = array())
+    {
 
-			$returnFiles=array();
-			$i=0;
+        $ch = curl_init($url);
 
-			foreach ($hashes as $hash) {
-				$returnFiles[$i++]=self::getFile($hash);
-			}
+        curl_setopt_array($ch, $context);
+        curl_setopt($ch, CURLOPT_USERAGENT, self::$userAgent);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-			return $returnFiles;
-		}
+        if (!$result = curl_exec($ch)) {
+            throw new NERDZSDKException(curl_error($ch));
+        }
 
+        //if the result is null, check if there is an error code
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200) {
+            self::triggerError(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+        }
 
-		/**
-		*	return contents 
-		*
-		*	@return array[]
-		*/
-		private static function request($url, $context = array()){
+        curl_close($ch);
 
-			$ch=curl_init($url);
+        return $result;
+    }
 
-			curl_setopt_array($ch, $context);
-			curl_setopt($ch, CURLOPT_USERAGENT, self::$userAgent);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
-    		if(!$result=curl_exec($ch)){
-    			throw new NERDZSDKException(curl_error($ch));
-    		}
+    private static function triggerError($error)
+    {
+        switch ($error) {
+            case '200':
+                //no error, continue
+                break;
+            case '404':
+                throw new NERDZHttpException("The requested file does not exist.", 404);
+                break;
+            case '400':
+                throw new NERDZHttpException("The URL is invalid.", 400);
+                break;
+            case '401':
+                throw new NERDZHttpException("The IP does not match the stored hash.", 401);
+                break;
+            case '408':
+                throw new NERDZHttpException("You are no longer allowed to edit the title or description. (timeout)", 408);
+                break;
+            case '409':
+                //no error, continue
+                break;
+            case '413':
+                throw new NERDZHttpException("The file is larger than maximum allowed size.", 413);
+                break;
+            case '414':
+                throw new NERDZHttpException("Either of the fields was over 2048 characters.", 414);
+                break;
+            case '415':
+                throw new NERDZHttpException("The file extension is not acceptable.", 415);
+                break;
+            case '420':
+                throw new NERDZHttpException("The rate limit was exceeded. Enhance your calm.", 420);
+                break;
+            default:
+                throw new NERDZHttpException("Unrecognized error", $error);
+                break;
+        }
 
-    		//if the result is null, check if there is an error code
-			if(curl_getinfo($ch, CURLINFO_HTTP_CODE) != 200)
-				self::triggerError(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-
-			curl_close($ch);
-			
-			return $result;
-		}
-
-
-		private static function triggerError($error){
-			switch ($error) {
-					case '200':
-						//no error, continue
-						break;
-					case '404':
-						throw new NERDZHttpException("The requested file does not exist.", 404);
-						break;
-					case '400':
-						throw new NERDZHttpException("The URL is invalid.", 400);
-						break;
-					case '401':
-						throw new NERDZHttpException("The IP does not match the stored hash.", 401);
-						break;
-					case '408':
-						throw new NERDZHttpException("You are no longer allowed to edit the title or description. (timeout)", 408);
-						break;
-					case '409':
-						//no error, continue
-						break;
-					case '413':
-						throw new NERDZHttpException("The file is larger than maximum allowed size.", 413);
-						break;
-					case '414':
-						throw new NERDZHttpException("Either of the fields was over 2048 characters.", 414);
-						break;
-					case '415':
-						throw new NERDZHttpException("The file extension is not acceptable.", 415);
-						break;
-					case '420':
-						throw new NERDZHttpException("The rate limit was exceeded. Enhance your calm.", 420);
-						break;
-					default:
-						throw new NERDZHttpException("Unrecognized error", $error);
-						break;
-				}
-
-		}
-	}
+    }
+}
