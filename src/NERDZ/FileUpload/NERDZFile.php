@@ -71,9 +71,9 @@ class NERDZFile
      */
     public function __construct($info, $maxLength = -1, $offset = -1)
     {
-        //polimorfismo a modo mio
-        if($info instanceof string){
-            $this->path = $info;
+        
+        if(is_string($info)){
+            $this->path = realpath($info);
         }
         else{
             $this->hash=$info->hash;

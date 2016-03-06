@@ -22,7 +22,7 @@ final class Autoloader {
         // with .php
         $file = str_replace('//', '/', rtrim($base_dir, '/') . '/'. str_replace('\\', '/', $relative_class) ) . '.php';
 
-        echo $file;
+        echo '*' . $file . "\n";
 
         // if the file is readable and exists, require_once it
         if (is_readable($file)) {

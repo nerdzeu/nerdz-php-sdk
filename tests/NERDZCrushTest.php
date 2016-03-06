@@ -2,6 +2,11 @@
 
 require '../autoload.php';
 
+$file= new NERDZ\FileUpload\NERDZFile('files/paolo.jpeg');
+
+$hash=NERDZ\FileUpload\NERDZCrushWrapper::uploadFile($file);
+
+var_dump($hash);
 
 var_dump(NERDZ\FileUpload\NERDZCrushWrapper::doesExist('Fsh6zkt6Znew'));
 
