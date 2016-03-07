@@ -1,14 +1,11 @@
 <?php
 
-require '../autoload.php';
-
-
 class NERDZCrushTest extends PHPUnit_Framework_TestCase
 {
 
     private $existing_hash1        = "Fsh6zkt6Znew";
     private $existing_hash2        = "C4PFHof8-Bnh";
-    private $local_file            = array("files/paolo.jpeg", "iwvA-OjFOssN"); //name of file and its hash
+    private $local_file            = array("tests/files/paolo.jpeg", "iwvA-OjFOssN"); //name of file and its hash
     private $inexistent_local_file = "i_do_not_exist";
     private $existing_url          = "https://www.google.it/images/nav_logo242.png";
     private $non_existing_hash     = "aaaaaaaaaaaa";
@@ -69,7 +66,7 @@ class NERDZCrushTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($return);
     }
 
-    public function TestUploadFile()
+    public function testUploadFile()
     {
         $file   = $this->local_file[0];
         $hash   = $this->local_file[1];
@@ -85,7 +82,7 @@ class NERDZCrushTest extends PHPUnit_Framework_TestCase
         $Uphash = NERDZ\FileUpload\NERDZCrushWrapper::delete($Uphash); // clean image
     }
 
-    public function TestUploadInexistentFile()
+    public function testUploadInexistentFile()
     {
         $this->expectException(NERDZ\Exceptions\NERDZSDKException::class);
 

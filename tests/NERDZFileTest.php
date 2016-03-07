@@ -1,7 +1,5 @@
 <?php
 
-require '../autoload.php';
-
 class NERDZFileTest extends PHPUnit_Framework_TestCase
 {
     private $JSONResponse = '{

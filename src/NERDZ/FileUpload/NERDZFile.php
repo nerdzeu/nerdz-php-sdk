@@ -52,7 +52,8 @@ class NERDZFile
     }
 
     //rindondante con getFilename. Lo mantengo comunque.
-    public function getFile(){
+    public function getFile()
+    {
         return $this->file;
     }
 

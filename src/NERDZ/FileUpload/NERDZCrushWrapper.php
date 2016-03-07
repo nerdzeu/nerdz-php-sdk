@@ -3,11 +3,11 @@
 namespace NERDZ\FileUpload;
 
 use NERDZ\Exceptions\NERDZHttpException;
+use NERDZ\Exceptions\NERDZSDKException;
 
 class NERDZCrushWrapper
 {
 
-    
     private static $NERDZAPIUrl = 'https://media.nerdz.eu/api/';
     private static $userAgent   = 'NERDZCrushWrapper';
 
@@ -141,7 +141,7 @@ class NERDZCrushWrapper
             $filename = $file;
         }
 
-        if (!file_exists($file)) {
+        if (!file_exists($filename)) {
             throw new NERDZSDKException("File cannot be found");
         }
 
