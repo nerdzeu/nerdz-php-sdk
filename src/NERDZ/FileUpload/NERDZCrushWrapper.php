@@ -7,9 +7,10 @@ use NERDZ\Exceptions\NERDZSDKException;
 
 class NERDZCrushWrapper
 {
-
+    //remote API url
     private static $NERDZAPIUrl = 'https://media.nerdz.eu/api/';
-    private static $userAgent   = 'NERDZCrushWrapper';
+    //useragent
+    private static $userAgent = 'NERDZCrushWrapper';
 
     /**
      * Change the server URL where the API resides.
@@ -23,8 +24,9 @@ class NERDZCrushWrapper
 
     /**
      * Get the server URL where the API resides.
-     * @return
-     *        The URL where the API waits for connections.
+     *
+     * @return The URL where the API waits for connections.
+     *        
      */
     public static function getApiURL()
     {
@@ -43,8 +45,9 @@ class NERDZCrushWrapper
 
     /**
      * Get the userAgent
-     * @return
-     *        Current user agent.
+     *
+     * @return  Current user agent.
+     *
      */
     public static function getUserAgent()
     {
@@ -52,6 +55,8 @@ class NERDZCrushWrapper
     }
 
     /**
+     *  Downlaod infos of a specified file.
+     *
      *    @param hash The hash of the file to retrive info about.
      *
      *    @return NERDZFile
@@ -75,7 +80,9 @@ class NERDZCrushWrapper
     }
 
     /**
-     *    @param  hashes An array of hashes to retrive inf about.
+     *  Download files infos. It uses the API info?list method and return a dictionary hash->NERDZFile
+     *
+     *    @param  hashes An array of hashes to retrive info about.
      *
      *    @return a dictionary with key=hash and value=NERDZFile. NOTE: this is the main difference with getFiles()
      *
@@ -110,6 +117,8 @@ class NERDZCrushWrapper
     }
 
     /**
+     *  Check if a given file exists on media.nerdz.eu
+     *
      *    @param string hash
      *
      *    @return boolean
@@ -125,9 +134,11 @@ class NERDZCrushWrapper
     }
 
     /**
-     *    @param file filename or NERDZFile
+     *  Upload a file to media.nerdz.eu.
      *
-     *    @return hash
+     *    @param local file filename or NERDZFile
+     *
+     *    @return string hash
      *
      */
     public static function uploadFile($file)
@@ -165,9 +176,11 @@ class NERDZCrushWrapper
     }
 
     /**
-     *    @param string url
+     *  Upload a file from an url.
      *
-     *    @return string
+     *    @param string The url of a file to upload
+     *
+     *    @return string hash
      *
      */
     public static function uploadFileViaURL($uploadUrl)
@@ -196,9 +209,9 @@ class NERDZCrushWrapper
     /**
      *  Delete $file uploaded on NerdzCrush
      *
-     *    @param file Nerdzfile or hash of a remote file that will be deleted
+     *    @param Nerdzfile or hash of a remote file that will be deleted
      *
-     *    @return Updated infos
+     *    @return status of the operation
      *
      */
     public static function delete($file)
@@ -228,7 +241,9 @@ class NERDZCrushWrapper
     }
 
     /**
-     *    @param string hash
+     *  Aliad for getFileInfo
+     *
+     *    @param string hash of the file to retrive
      *
      *    @return NERDZFile
      *
@@ -241,9 +256,11 @@ class NERDZCrushWrapper
     }
 
     /**
+     *  Retrive a list of file Not using the API info?list= method. Return an array instead of a dictionary
+     *
      *    @param string[] hashes
      *
-     *    @return NERDZFile[]
+     *    @return NERDZFile array
      *
      */
     public static function getFiles($hashes)
@@ -260,7 +277,7 @@ class NERDZCrushWrapper
     }
 
     /**
-     *    return contents
+     *   Return contents
      *
      *    @return array[]
      */

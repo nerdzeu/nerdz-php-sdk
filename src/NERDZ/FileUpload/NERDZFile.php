@@ -32,7 +32,7 @@ class NERDZFile
     protected $stream;
 
     private $hash;
-    private $status;
+    //private $status;
     private $compression;
     private $original;
     private $type;
@@ -41,31 +41,55 @@ class NERDZFile
 
     private $file;
 
+    /**
+     * Return the compression
+     *
+     * @return string
+     */
     public function getCompression()
     {
         return $this->compression;
     }
 
+    /**
+     * Return a list of file linked with this one(in the case of albums, for ex.)
+     *
+     * @return array
+     */
     public function getFiles()
     {
         return $this->files;
     }
 
-    //rindondante con getFilename. Lo mantengo comunque.
+    /**
+     * Return the name of the file.
+     *
+     * @return string
+     */
     public function getFile()
     {
         return $this->file;
     }
 
+    /**
+     * Return the hash of the file.
+     *
+     * @return string
+     */
     public function getHash()
     {
         return $this->hash;
     }
 
-    public function getStatus()
+    /**
+     * Return the status of the file. ()
+     *
+     * @return string
+     */
+    /*public function getStatus()
     {
         return $this->getStatus;
-    }
+    }*/
 
     /**
      * Creates a new NERDZFile entity.

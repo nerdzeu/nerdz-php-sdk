@@ -29,7 +29,7 @@ class NERDZFileTest extends PHPUnit_Framework_TestCase
   "type": "image/jpeg"
 }';
 
-    private $existing_file   = "files/paolo.jpeg";
+    private $existing_file   = "tests/files/paolo.jpeg";
     private $inexistent_file = "foo";
 
     public function testNERDZFile_Construct_from_json()
