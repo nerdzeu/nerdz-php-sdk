@@ -1,0 +1,20 @@
+Scrivo in italiano perchè di si:
+
+
+-Modificare e addattare NERDZclient. Che ora come ora lascio bella che copiata dal sdk di facebook
+
+-Addattare la parte relativa all'upload dei file per filezilla:
+	-http
+	-fileupload
+	-NERDZRequest
+
+-fare la parte relativa a ssl(Se non sbaglio la cartella PseudoRandomString in facebookSDK)
+
+-creare TEST
+
+-creare Documentazione
+
+-creare autoload
+
+
+++++e più importante di tutti: Far funzionare tutta sta roba++++

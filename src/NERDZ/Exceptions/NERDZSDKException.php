@@ -2,6 +2,7 @@
 
 namespace NERDZ\Exceptions;
 
+
 /*
  * Class NERDZSDKException
  * 
